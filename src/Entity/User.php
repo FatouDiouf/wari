@@ -65,9 +65,16 @@ class User implements UserInterface
      */
     private $comptebancaire;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="user", orphanRemoval=true)
+     */
+    private $depot;
+
+
     public function __construct()
     {
         $this->partenaire = new ArrayCollection();
+        $this->depot = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -233,4 +240,40 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection|Depot[]
+     */
+    public function getDepot(): Collection
+    {
+        return $this->depot;
+    }
+
+    public function addDepot(Depot $depot): self
+    {
+        if (!$this->depot->contains($depot)) {
+            $this->depot[] = $depot;
+            $depot->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepot(Depot $depot): self
+    {
+        if ($this->depot->contains($depot)) {
+            $this->depot->removeElement($depot);
+            // set the owning side to null (unless already changed)
+            if ($depot->getUser() === $this) {
+                $depot->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+   
+
+
+   
 }

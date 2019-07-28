@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 use App\Entity\User;
+use App\Entity\Partenaire;
+use App\Entity\Comptebancaire;
+use App\Entity\Depot;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -88,5 +91,61 @@ class SecurityController extends AbstractController
             'username' => $user->getUsername(),
             'roles' => $user->getRoles()
         ]);
+    }
+
+     /**
+     * @Route("/partenaire", name="add_partenaire", methods={"POST"})
+     */
+
+    public function ajoutpartenaire(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        $partenaire= $serializer->deserialize($request->getContent(), Partenaire::class, 'json');
+        $entityManager->persist($partenaire);
+        $entityManager->flush();
+        $data = [
+            'vue' => 201,
+
+            'affiche' => 'Le partenaire a bien été ajouté'
+        ];
+
+        return new JsonResponse($data, 201);
+    }
+
+
+
+     /**
+     * @Route("/comptebancaire", name="add_compte", methods={"POST"})
+     */
+
+    public function ajoutcompte(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        $compte= $serializer->deserialize($request->getContent(), Comptebancaire::class, 'json');
+        $entityManager->persist($compte);
+        $entityManager->flush();
+        $data = [
+            'vue' => 201,
+
+            'afficher' => 'Le compte a bien été ajouté'
+        ];
+
+        return new JsonResponse($data, 201);
+    }
+
+    /**
+     * @Route("/depot", name="add_compte", methods={"POST"})
+     */
+
+    public function ajoutdepot(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        $depot= $serializer->deserialize($request->getContent(), Depot::class, 'json');
+        $entityManager->persist($depot);
+        $entityManager->flush();
+        $data = [
+            'vue' => 201,
+
+            'afficher' => 'Le depôt a bien été géré'
+        ];
+
+        return new JsonResponse($data, 201);
     }
 }
