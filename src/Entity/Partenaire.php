@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -19,7 +21,7 @@ class Partenaire
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="integer")
      */
     private $ninea;
 
@@ -34,21 +36,23 @@ class Partenaire
     private $adresse;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="partenaire")
+     * @ORM\Column(type="string", length=255)
      */
-    private $user;
+    private $statut;
+
+    
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNinea(): ?string
+    public function getNinea(): ?int
     {
         return $this->ninea;
     }
 
-    public function setNinea(string $ninea): self
+    public function setNinea(int $ninea): self
     {
         $this->ninea = $ninea;
 
@@ -79,15 +83,16 @@ class Partenaire
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getStatut(): ?string
     {
-        return $this->user;
+        return $this->statut;
     }
 
-    public function setUser(?User $user): self
+    public function setStatut(string $statut): self
     {
-        $this->user = $user;
+        $this->statut = $statut;
 
         return $this;
-    }
+    }   
+
 }
