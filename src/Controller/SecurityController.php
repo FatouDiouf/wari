@@ -49,9 +49,7 @@ class SecurityController extends AbstractController
             $user->setTelephone($values->telephone);
 
 
-            // $repo = $this->getDoctrine()->getRepository(Partenaire::class);
-            // $partenaires = $repo->find($values->partenaire);
-            // $user->setPartenaire($partenaires);
+            
 
             $repos = $this->getDoctrine()->getRepository(Comptebancaire::class);
             $compte = $repos->find($values->comptebancaire);
@@ -70,7 +68,7 @@ class SecurityController extends AbstractController
 
             $data = [
                 'status' => 201,
-                'message' => 'L\'utilisateur a été créé'
+                'message' => 'Le partenaire a été créé'
             ];
 
             return new JsonResponse($data, 201);
@@ -98,18 +96,39 @@ class SecurityController extends AbstractController
      * @Route("/partenaire", name="add_partenaire", methods={"POST"})
      */
 
-    public function ajoutpartenaire(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    public function ajoutpartenaire(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager,ValidatorInterface $validator)
     {
-        $partenaire = $serializer->deserialize($request->getContent(), Partenaire::class, 'json');
-        $entityManager->persist($partenaire);
-        $entityManager->flush();
-        $data = [
-            'vue' => 201,
+        $values = json_decode($request->getContent());
+        if (isset($values->ninea, $values->raisonsociale)) {
+            $part = new Partenaire();
 
-            'affiche' => 'Le partenaire a bien été ajouté'
-        ];
+            $uers = $this->getDoctrine()->getRepository(User::class)->find($values->adminsuper);
+            $part->setAdminsuper($uers);
+            $part->setNinea($values->ninea);
+            $part->setRaisonsociale($values->raisonsociale);
+            $part->setAdresse($values->adresse);
+            $part->setStatut($values->statut);
 
-        return new JsonResponse($data, 201);
+
+
+            $errors = $validator->validate($part);
+            if (count($errors)) {
+                $errors = $serializer->serialize($errors, 'json');
+                return new Response($errors, 500, [
+                    'Content-Type' => 'application/json'
+                ]);
+            }
+
+            $entityManager->persist($part);
+            $entityManager->flush();
+
+            $data = [
+                'status' => 201,
+                'message' => 'Le  partenaire a été ajouté avec success'
+            ];
+
+            return new JsonResponse($data, 201);
+        }
     }
 
 
@@ -117,7 +136,6 @@ class SecurityController extends AbstractController
     /**
      * @Route("/comptebancaire", name="add_compte", methods={"POST"})
      */
-
     public function ajoutcompte(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
         $compte = $serializer->deserialize($request->getContent(), Comptebancaire::class, 'json');
@@ -171,3 +189,5 @@ class SecurityController extends AbstractController
         }
     }
 }
+
+

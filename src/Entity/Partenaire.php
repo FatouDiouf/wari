@@ -42,11 +42,6 @@ class Partenaire
     private $statut;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="partenaire")
-     */
-    private $users;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="partenaires")
      */
     private $adminsuper;
