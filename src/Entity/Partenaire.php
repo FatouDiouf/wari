@@ -41,23 +41,9 @@ class Partenaire
      */
     private $statut;
 
-    /**
-<<<<<<< HEAD
-     * @ORM\Column(type="string", length=255)
-     */
-    private $statut;
+    
 
     
-=======
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="partenaires")
-     */
-    private $adminsuper;
-
-    public function __construct()
-    {
-        $this->users = new ArrayCollection();
-    }
->>>>>>> caf3007fa196afcd1097c133d51d6d25bebd1d3b
 
     public function getId(): ?int
     {
@@ -101,20 +87,6 @@ class Partenaire
     }
 
     public function getStatut(): ?string
-<<<<<<< HEAD
-    {
-        return $this->statut;
-    }
-
-    public function setStatut(string $statut): self
-    {
-        $this->statut = $statut;
-
-        return $this;
-    }   
-
-}
-=======
     {
         return $this->statut;
     }
@@ -138,4 +110,3 @@ class Partenaire
         return $this;
     }
 }
->>>>>>> caf3007fa196afcd1097c133d51d6d25bebd1d3b
