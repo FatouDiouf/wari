@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Controller;
+
 use App\Entity\User;
+use App\Entity\Depot;
 use App\Entity\Partenaire;
 use App\Entity\Comptebancaire;
-use App\Entity\Depot;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -37,27 +39,26 @@ class SecurityController extends AbstractController
     public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator)
     {
         $values = json_decode($request->getContent());
-        if(isset($values->username,$values->password)) {
+        if (isset($values->username, $values->password)) {
             $user = new User();
             $user->setUsername($values->username);
-            $user->setPassword($passwordEncoder->encodePassword($user,$values->password));
+            $user->setPassword($passwordEncoder->encodePassword($user, $values->password));
             $user->setRoles($values->roles);
             $user->setNom($values->nom);
             $user->setEmail($values->email);
             $user->setTelephone($values->telephone);
-            $user->setAdresse($values->adresse);
 
 
-            $repo = $this->getDoctrine()->getRepository(Partenaire::class);
-            $partenaires = $repo->find($values->partenaire);
-            $user->setPartenaire($partenaires);
+            // $repo = $this->getDoctrine()->getRepository(Partenaire::class);
+            // $partenaires = $repo->find($values->partenaire);
+            // $user->setPartenaire($partenaires);
 
             $repos = $this->getDoctrine()->getRepository(Comptebancaire::class);
             $compte = $repos->find($values->comptebancaire);
             $user->setComptebancaire($compte);
 
             $errors = $validator->validate($user);
-            if(count($errors)) {
+            if (count($errors)) {
                 $errors = $serializer->serialize($errors, 'json');
                 return new Response($errors, 500, [
                     'Content-Type' => 'application/json'
@@ -93,13 +94,13 @@ class SecurityController extends AbstractController
         ]);
     }
 
-     /**
+    /**
      * @Route("/partenaire", name="add_partenaire", methods={"POST"})
      */
 
     public function ajoutpartenaire(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
-        $partenaire= $serializer->deserialize($request->getContent(), Partenaire::class, 'json');
+        $partenaire = $serializer->deserialize($request->getContent(), Partenaire::class, 'json');
         $entityManager->persist($partenaire);
         $entityManager->flush();
         $data = [
@@ -113,13 +114,13 @@ class SecurityController extends AbstractController
 
 
 
-     /**
+    /**
      * @Route("/comptebancaire", name="add_compte", methods={"POST"})
      */
 
     public function ajoutcompte(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
-        $compte= $serializer->deserialize($request->getContent(), Comptebancaire::class, 'json');
+        $compte = $serializer->deserialize($request->getContent(), Comptebancaire::class, 'json');
         $entityManager->persist($compte);
         $entityManager->flush();
         $data = [
@@ -132,20 +133,41 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/depot", name="add_compte", methods={"POST"})
+     * @Route("/depot", name="add_depot", methods={"POST"})
      */
 
-    public function ajoutdepot(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    public function ajoutdepot(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
-        $depot= $serializer->deserialize($request->getContent(), Depot::class, 'json');
-        $entityManager->persist($depot);
-        $entityManager->flush();
-        $data = [
-            'vue' => 201,
+        $values = json_decode($request->getContent());
+        if (isset($values->montant, $values->datedepot)) {
+            $dep = new Depot();
 
-            'afficher' => 'Le depôt a bien été géré'
-        ];
+            $depot = $this->getDoctrine()->getRepository(Comptebancaire::class);
+            $depots = $depot->find($values->comptebancaire);
+            $dep->setComptebancaire($depots);
 
-        return new JsonResponse($data, 201);
+            $dep->setMontant($values->montant);
+            $dep->setDatedepot(new \DateTime());
+
+
+
+            $errors = $validator->validate($dep);
+            if (count($errors)) {
+                $errors = $serializer->serialize($errors, 'json');
+                return new Response($errors, 500, [
+                    'Content-Type' => 'application/json'
+                ]);
+            }
+
+            $entityManager->persist($dep);
+            $entityManager->flush();
+
+            $data = [
+                'status' => 201,
+                'message' => 'Le a été ajouté avec success'
+            ];
+
+            return new JsonResponse($data, 201);
+        }
     }
 }
