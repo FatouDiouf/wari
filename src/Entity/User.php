@@ -50,15 +50,6 @@ class User implements UserInterface
      */
     private $telephone;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $adresse;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Partenaire", mappedBy="user")
-     */
-    private $partenaire;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Comptebancaire", cascade={"persist", "remove"})
@@ -66,17 +57,16 @@ class User implements UserInterface
     private $comptebancaire;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Partenaire", mappedBy="adminsuper")
      */
-    private $depot;
-
+    private $partenaires;
 
     public function __construct()
     {
-        $this->partenaire = new ArrayCollection();
-        $this->depot = new ArrayCollection();
+        $this->partenaires = new ArrayCollection();
     }
 
+  
     public function getId(): ?int
     {
         return $this->id;
@@ -186,48 +176,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getAdresse(): ?string
-    {
-        return $this->adresse;
-    }
 
-    public function setAdresse(string $adresse): self
-    {
-        $this->adresse = $adresse;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Partenaire[]
-     */
-    public function getPartenaire(): Collection
-    {
-        return $this->partenaire;
-    }
-
-    public function addPartenaire(Partenaire $partenaire): self
-    {
-        if (!$this->partenaire->contains($partenaire)) {
-            $this->partenaire[] = $partenaire;
-            $partenaire->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removePartenaire(Partenaire $partenaire): self
-    {
-        if ($this->partenaire->contains($partenaire)) {
-            $this->partenaire->removeElement($partenaire);
-            // set the owning side to null (unless already changed)
-            if ($partenaire->getUser() === $this) {
-                $partenaire->setUser(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getComptebancaire(): ?Comptebancaire
     {
@@ -272,8 +221,35 @@ class User implements UserInterface
         return $this;
     }
 
-   
+    /**
+     * @return Collection|Partenaire[]
+     */
+    public function getPartenaires(): Collection
+    {
+        return $this->partenaires;
+    }
 
+    public function addPartenaire(Partenaire $partenaire): self
+    {
+        if (!$this->partenaires->contains($partenaire)) {
+            $this->partenaires[] = $partenaire;
+            $partenaire->setAdminsuper($this);
+        }
 
-   
+        return $this;
+    }
+
+    public function removePartenaire(Partenaire $partenaire): self
+    {
+        if ($this->partenaires->contains($partenaire)) {
+            $this->partenaires->removeElement($partenaire);
+            // set the owning side to null (unless already changed)
+            if ($partenaire->getAdminsuper() === $this) {
+                $partenaire->setAdminsuper(null);
+            }
+        }
+
+        return $this;
+    }
+  
 }
